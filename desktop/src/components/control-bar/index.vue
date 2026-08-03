@@ -99,6 +99,7 @@ import Rotation from './rotation/index.vue'
 import Screenshot from './screenshot/index.vue'
 import Terminal from './terminal/index.vue'
 import Schedule from './schedule/index.vue'
+import SendText from './send-text/index.vue'
 import Volume from './volume/index.vue'
 
 export default {
@@ -112,6 +113,7 @@ export default {
     Explorer,
     Terminal,
     Schedule,
+    SendText,
   },
   props: {
     device: {
@@ -222,6 +224,12 @@ export default {
           label: 'device.terminal.name',
           fontIcon: 'i-bi-terminal',
           component: 'Terminal',
+        },
+        sendText: {
+          label: 'device.control.sendText.name',
+          fontIcon: 'i-bi-chat-left-text',
+          component: 'SendText',
+          tips: 'device.control.sendText.tips',
         },
         schedule: {
           label: 'device.schedule.name',

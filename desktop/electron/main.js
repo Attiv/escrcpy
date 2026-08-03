@@ -39,6 +39,7 @@ import {
 
 import {
   controlModule,
+  deviceInputModule,
   explorerModule,
   mainModule,
   scheduleModule,
@@ -78,6 +79,7 @@ mainApp.use(controlModule)
 mainApp.use(explorerModule)
 mainApp.use(terminalModule)
 mainApp.use(scheduleModule)
+mainApp.use(deviceInputModule)
 
 app.whenReady().then(() => {
   mainApp.start()
