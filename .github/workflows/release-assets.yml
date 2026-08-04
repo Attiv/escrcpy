@@ -44,33 +44,43 @@ jobs:
       - name: Install Dependencies
         run: pnpm install
 
-      - name: Install Flatpak toolchain (Linux)
-        if: matrix.platform == 'linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y flatpak flatpak-builder libudev-dev
-          flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          flatpak --user install -y --noninteractive flathub org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08 org.electronjs.Electron2.BaseApp//23.08
-
       - name: Build ${{ matrix.platform }}
         run: pnpm ${{ matrix.build_command }}
 
-      - name: Upload build artifacts
+      # electron-builder normalises the arch differently per package format:
+      # dmg/exe/zip use x64, deb uses amd64, AppImage uses x86_64.
+      - name: Upload x64 artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: escrcpy-${{ matrix.platform }}
+          name: escrcpy-${{ matrix.platform }}-x64
           if-no-files-found: warn
           retention-days: 90
           path: |
-            desktop/dist-release/*.exe
-            desktop/dist-release/*.zip
-            desktop/dist-release/*.dmg
-            desktop/dist-release/*.AppImage
-            desktop/dist-release/*.flatpak
-            desktop/dist-release/*.snap
-            desktop/dist-release/*.deb
-            desktop/dist-release/*.rpm
-            desktop/dist-release/*.tar.gz
+            desktop/dist-release/*-x64.*
+            desktop/dist-release/*-amd64.*
+            desktop/dist-release/*-x86_64.*
+
+      - name: Upload arm64 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: escrcpy-${{ matrix.platform }}-arm64
+          if-no-files-found: warn
+          retention-days: 90
+          path: |
+            desktop/dist-release/*-arm64.*
+
+      # NSIS also emits a combined installer with no arch suffix, which the two
+      # globs above would drop. Kept separately rather than silently discarded.
+      - name: Upload multi-arch installers
+        if: matrix.platform == 'win'
+        uses: actions/upload-artifact@v4
+        with:
+          name: escrcpy-win-multiarch
+          if-no-files-found: warn
+          retention-days: 90
+          path: |
+            desktop/dist-release/*-win-setup.*
+            desktop/dist-release/*-win-portable.*
 
       # Only publish a Release for tag pushes. On workflow_dispatch the ref is a
       # branch, which would otherwise be turned into a tag name for the release.
