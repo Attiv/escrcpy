@@ -95,6 +95,8 @@
 </template>
 
 <script setup>
+import { clonePlainValue } from '$/utils/index.js'
+
 const dialog = useDialog()
 
 const inputRef = ref(null)
@@ -109,7 +111,11 @@ const model = ref({
   paste: false,
 })
 
-const deviceIds = computed(() => devices.value.map(item => item?.id || item).filter(Boolean))
+const deviceIds = computed(() =>
+  devices.value
+    .map(item => (typeof item === 'string' ? item : item?.id))
+    .filter(Boolean),
+)
 
 function open(args = {}) {
   dialog.open(args)
@@ -164,13 +170,14 @@ async function handleSend() {
   dialog.loading = true
 
   try {
-    const results = await window.$preload.ipcRenderer.invoke('device-input-send', {
+    // IPC 走结构化克隆，Vue 的响应式 Proxy 无法被克隆，必须先转成纯值
+    const results = await window.$preload.ipcRenderer.invoke('device-input-send', clonePlainValue({
       devices: deviceIds.value,
       text: model.value.text,
       targets: model.value.targets,
       clearBefore: model.value.clearBefore,
       paste: model.value.paste,
-    })
+    }))
 
     // 未安装 ADBKeyboard 是可修复的，单独提示并给出安装入口
     keyboardMissing.value = results.some(item => item.ime?.code === 'ADB_KEYBOARD_MISSING')
