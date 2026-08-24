@@ -42,7 +42,6 @@ import {
   deviceInputModule,
   explorerModule,
   mainModule,
-  scheduleModule,
   terminalModule,
 } from './modules/index.js'
 
@@ -78,7 +77,6 @@ mainApp.use(shortcutsService)
 mainApp.use(controlModule)
 mainApp.use(explorerModule)
 mainApp.use(terminalModule)
-mainApp.use(scheduleModule)
 mainApp.use(deviceInputModule)
 
 app.whenReady().then(() => {
