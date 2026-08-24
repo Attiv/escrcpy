@@ -32,6 +32,7 @@ import {
   useFileOperations,
   useFilePreview,
   usePathManager,
+  usePathMemory,
   useQuickAccess,
   useSelection,
   useUploader,
@@ -106,6 +107,10 @@ export function useExplorer(options = {}) {
 
   const quickAccess = useQuickAccess({ deviceId })
 
+  // ========== Path memory ==========
+
+  const pathMemory = usePathMemory({ deviceId })
+
   // ========== Auto-refresh ==========
 
   let refreshTimer = null
@@ -144,6 +149,9 @@ export function useExplorer(options = {}) {
             type: 'directory',
             parentPath: pathManager.getDirname(currentPathValue),
           })
+
+          // Remember the path on every move, so it survives a hard window close
+          pathMemory.save(currentPathValue)
         }
       }
     },
@@ -255,6 +263,30 @@ export function useExplorer(options = {}) {
   }
 
   /**
+   * Restore the directory this device was last left in
+   * @returns {Promise<boolean>} Whether a remembered path was restored
+   */
+  async function restoreLastPath() {
+    const savedPath = pathMemory.load()
+
+    if (!savedPath || savedPath === pathManager.currentPath.value) {
+      return false
+    }
+
+    // The directory may have been removed since, fall back to the initial path
+    if (!(await fileOps.exists(savedPath))) {
+      pathMemory.clear()
+      return false
+    }
+
+    // Reset rather than navigate, so the restored path becomes the base of the
+    // history and Back cannot lead to a directory this session never visited
+    pathManager.reset(savedPath)
+
+    return true
+  }
+
+  /**
    * Initialize and load
    * @param {import('./types.js').DeviceInfo} [newDevice] - Optional new device
    */
@@ -262,8 +294,17 @@ export function useExplorer(options = {}) {
     if (newDevice) {
       setDevice(newDevice)
     }
+
     quickAccess.load()
-    if (deviceId.value) {
+
+    if (!deviceId.value) {
+      return
+    }
+
+    // Restoring changes currentPath, which reads the directory via the watcher
+    const restored = await restoreLastPath()
+
+    if (!restored) {
       await fileOps.readDirectory()
     }
   }
@@ -409,6 +450,13 @@ export function useExplorer(options = {}) {
       DISPLAY_LIMIT: quickAccess.DISPLAY_LIMIT,
     },
 
+    // ========== Path memory ==========
+    pathMemory: {
+      lastPath: pathMemory.lastPath,
+      save: pathMemory.save,
+      clear: pathMemory.clear,
+    },
+
     // ========== Auto-refresh ==========
     startAutoRefresh,
     stopAutoRefresh,
@@ -436,6 +484,7 @@ export function useExplorer(options = {}) {
       selection,
       clipboard,
       quickAccess,
+      pathMemory,
     },
   }
 }

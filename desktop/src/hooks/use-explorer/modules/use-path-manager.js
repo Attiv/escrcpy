@@ -167,10 +167,14 @@ export function usePathManager(options = {}) {
     return currentPath.value
   }
 
-  /** Reset to initial path */
-  function reset() {
-    currentPath.value = initialPath
-    history.value = [initialPath]
+  /**
+   * Reset to a base path, discarding history
+   * @param {string} [path] - Base path, defaults to the initial path
+   */
+  function reset(path = initialPath) {
+    const normalizedPath = normalizePath(path)
+    currentPath.value = normalizedPath
+    history.value = [normalizedPath]
     historyIndex.value = 0
   }
 

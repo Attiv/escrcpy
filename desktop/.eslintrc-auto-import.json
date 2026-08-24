@@ -379,6 +379,7 @@
     "useGnirehtetAction": true,
     "useOtgAction": true,
     "useQuickAccess": true,
-    "useRecordAction": true
+    "useRecordAction": true,
+    "usePathMemory": true
   }
 }

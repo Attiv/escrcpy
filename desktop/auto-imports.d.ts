@@ -255,6 +255,7 @@ declare global {
   const useParallax: typeof import('@vueuse/core')['useParallax']
   const useParentElement: typeof import('@vueuse/core')['useParentElement']
   const usePathManager: typeof import('./src/hooks/use-explorer/modules/index.js')['usePathManager']
+  const usePathMemory: typeof import('./src/hooks/use-explorer/modules/index.js')['usePathMemory']
   const usePerformanceObserver: typeof import('@vueuse/core')['usePerformanceObserver']
   const usePermission: typeof import('@vueuse/core')['usePermission']
   const usePointer: typeof import('@vueuse/core')['usePointer']

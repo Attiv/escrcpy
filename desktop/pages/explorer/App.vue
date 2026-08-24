@@ -315,7 +315,7 @@ const explorer = useExplorer()
 
 const { currentDevice, locale, size } = useWindowStateSync({
   async onQueryMounted() {
-    explorer.init(currentDevice.value, '/sdcard')
+    explorer.init(currentDevice.value)
 
     const currentDeviceId = currentDevice.value?.id
 
